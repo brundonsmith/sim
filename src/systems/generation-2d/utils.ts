@@ -1,3 +1,4 @@
+import { having } from "utilities/misc";
 
 export const generate
     : <T>(length: number, generator: (index: number) => T) => Array<T>
@@ -17,3 +18,8 @@ export const generate2d
         generate(length, row => 
             generate(width, col =>
                 generator(row)(col)))
+
+export const lerp
+    : (w: number) => (n1: number, n2: number) => number
+    = (w) => (n1, n2) =>
+        (1 - w) * n1 + w * n2

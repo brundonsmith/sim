@@ -1,5 +1,5 @@
 import { Update } from '../../entity-component/entity';
-import { Vector3 } from 'systems/geometry/Vector3';
+import { Vector3 } from 'systems/geometry/Vector';
 
 export const aspects = {
     ['.transform']: {

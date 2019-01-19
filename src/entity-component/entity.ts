@@ -1,5 +1,7 @@
+
 import { updates } from 'components/index';
-import { pipe, having, capture, partialAssign } from 'utilities/funcs';
+import { having, capture, pipe } from 'utilities/misc';
+import { mergeKeys } from 'utilities/immutable';
 
 const ID = Symbol('id');
 
@@ -36,7 +38,7 @@ export type Update<M extends Message> = (obj: Entity, message?: M) => Entity;
 export const update
     : Update<Message> 
     = (entity, message) =>
-        pipe(componentUpdateFuncs(entity), entity, message)
+        pipe(componentUpdateFuncs(entity))(entity, message)
 
 const componentUpdateFuncs
     : (entity: Entity) => Array<Update<Message>>
@@ -96,15 +98,15 @@ const destructureEntityRecursive
     = (parent = undefined) => (structuredEntity) =>
         having(`${Math.random()}`, id =>
             [
-                partialAssign(Object.keys(structuredEntity).filter(k => k !== '$'))(
+                mergeKeys(Object.keys(structuredEntity).filter(k => k !== '$'),
                     {
                         [ID]: id,
                         parent: parent,
                         name: id,
                         type: [],
                     },
-                    (<Entity> structuredEntity)
-                )
+                    structuredEntity
+                ) as Entity
             ].concat(
                 structuredEntity.$ == null
                     ? []

@@ -1,31 +1,35 @@
 import { Image, Gray, Resolution } from "systems/generation-2d/Image";
-import { generate2d, generate, lerp } from "systems/generation-2d/utils";
+import { generate2d, generate, blend } from "systems/generation-2d/utils";
 import { having, clamp } from "utilities/misc";
 
 type Params = {
     resolution: Resolution, 
-    numberX: number,
-    numberY: number,
-    patternType: 'image'|'square'|'disc'|'paraboloid'|'bell'|'gaussian'|'thorn'|'pyramid'|'brick'|'gradation'|'waves'|'half-bell'|'ridged-bell'|'crescent'|'capsule'|'cone',
-    bevelX: number,
-    bevelY: number,
+    opacity: number,
+    mode: 'copy'|'linear-dodge'|'subtract'|'multiply'|'add-sub'|'max'|'min'|'switch'|'divide'|'overlay'|'screen'|'soft-light',
+    alphaBlending: 'source'|'ignore'|'straight'|'premultiplied',
+    croppingAreaLeft: number,
+    croppingAreaRight: number,
+    croppingAreaTop: number,
+    croppingAreaBottom: number,
 }
 
 const defaults = {
     resolution: [ 512, 512 ],
-    numberX: 10,
-    numberY: 10,
-    patternType: 'brick',
-    bevelX: 0.5,
-    bevelY: 0.5,
+    opacity: 1,
+    mode: 'copy',
+    alphaBlending: 'source',
+    croppingAreaLeft: 0,
+    croppingAreaRight: 1,
+    croppingAreaTop: 0,
+    croppingAreaBottom: 1,
 }
-
+/*
 export const TileGenerator
     : (parameters: Partial<Params> ) => 
         (inputs: { PatternInput?: Image<Gray>, Background?: Image<Gray> }) => { Output: Image<Gray> }
     = (parameters = {}) => 
         ({ PatternInput, Background }) => 
-            having({...defaults, ...parameters}, ({ resolution, numberX, numberY, bevelX, bevelY, patternType }) =>
+            having({...defaults, ...parameters}, ({ resolution }) =>
                 ({
                     Output: (
                         patternType === 'brick' ?
@@ -34,9 +38,9 @@ export const TileGenerator
                                 generate2d(resolution[0], resolution[1], (row) => (column) =>
                                     having(PatternInput ? PatternInput[row][column] : 1, foregroundPixel =>
                                     having(Background   ? Background[row][column]   : 0, backgroundPixel =>
-                                        lerp(Math.min(scoreY(row), scoreX(column)))(
-                                            backgroundPixel,
-                                            foregroundPixel
+                                        blend(Math.min(scoreY(row), scoreX(column)))(
+                                            foregroundPixel,
+                                            backgroundPixel
                                         )))
                             )))
                         :
@@ -44,7 +48,7 @@ export const TileGenerator
                     )
                 })
             )
-
+*/
 const score
     : (resolution: number, count: number, bevel: number) => (p: number) => number
     = (resolution, count, bevel) => having(increments(resolution, count), lines => 

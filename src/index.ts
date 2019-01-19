@@ -2,22 +2,20 @@
 import { start } from 'entity-component/world';
 
 import { TileGenerator } from 'systems/generation-2d/nodes/generators/TileGenerator';
-import { GrayscaleImage, ColorImage } from 'systems/generation-2d/Types';
-import { having } from 'utilities/funcs';
+import { Image, Gray } from 'systems/generation-2d/Image';
 
 const width = 512, height = 512;
 
-let foreground = TileGenerator({ resolution: [ width, height ], numberX: 20, numberY: 20 })({ }).Output
-console.log(foreground)
 
-let generated = TileGenerator({ resolution: [ width, height ], numberX: 3, numberY: 3 })({ 
-    PatternInput: foreground, 
-}).Output;
+let generated = 
+    TileGenerator({ resolution: [ width, height ], numberX: 3, numberY: 3 })({ 
+        PatternInput: TileGenerator({ resolution: [ width, height ], numberX: 20, numberY: 20 })({ }).Output, 
+    }).Output;
 
 
 {
     const writeToContext
-        : (context: CanvasRenderingContext2D, image: GrayscaleImage) => void
+        : (context: CanvasRenderingContext2D, image: Image<Gray>) => void
         = (context, image) => {
             let width = image.length;
             let height = image[0].length;
