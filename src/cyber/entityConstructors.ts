@@ -52,7 +52,7 @@ export const createPlane
 export const createDirectionalLight
     : () => Entity & WithThreeLight
     = () => ({
-        threeObject: Object.assign(new THREE.DirectionalLight(0xf6cd8b, 1), { 
+        threeObject: Object.assign(new THREE.DirectionalLight(0xF6CD4B, 1), { 
             castShadow: true 
         })
     })
