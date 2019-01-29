@@ -17,7 +17,7 @@ const defaults = {
     disorder: 0.5,
     nonSquareExpansion: false,
 }
-
+/*
 export const TileGenerator
     : (parameters: Partial<Params> ) => 
         (inputs: { PatternInput?: Image<Gray>, Background?: Image<Gray> }) => { Output: Image<Gray> }
@@ -31,7 +31,7 @@ export const TileGenerator
                 })
             )
 
-
+*/
 /*
 // Function to linearly interpolate between a0 and a1
 // Weight w should be in the range [0.0, 1.0]

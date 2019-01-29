@@ -1,11 +1,35 @@
+import * as THREE from 'three';
+import World from 'systems/three-cannon/World';
+import PhysicalObject from 'systems/three-cannon/PhysicalObject';
+import { boxCollider } from 'systems/three-cannon/utilities';
 
-import { start } from 'entity-component/world';
+let world = new World();
 
+let camera = new PhysicalObject(
+    new THREE.Camera(), 
+    { mass: 0 }, [ ]
+)
+
+world.addObject(camera)
+
+
+
+let box = new PhysicalObject(
+    new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), new THREE.MeshStandardMaterial()), 
+    { mass: 0 }, [ boxCollider(1, 1, 1) ]
+)
+
+world.addObject(box)
+
+box.position.z = 5;
+
+world.start();
+
+/*
 import { TileGenerator } from 'systems/generation-2d/nodes/generators/TileGenerator';
 import { Image, Gray } from 'systems/generation-2d/Image';
 
 const width = 512, height = 512;
-
 
 let generated = 
     TileGenerator({ resolution: [ width, height ], numberX: 3, numberY: 3 })({ 
@@ -45,25 +69,4 @@ let generated =
     if(context != null) {
         writeToContext(context, generated);
     }
-}
-/*
-{
-    var table = document.createElement('table');
-    table.style.borderCollapse = 'collapse';
-    table.style.width = width + 'px';
-    table.style.height = height + 'px';
-    table.style.border = '1px solid black';
-
-    table.innerHTML = generated.map(row =>
-        `<tr>
-            ${row.map(val => 
-                `<td style="background: rgb(${Math.floor(val * 255)}, ${Math.floor(val * 255)}, ${Math.floor(val * 255)}); border: none; padding:0; margin:0;"></td>`).join('')}
-        </tr>`
-    ).join('\n')
-
-    document.body.appendChild(table);
-
 }*/
-    
-    
-//start();

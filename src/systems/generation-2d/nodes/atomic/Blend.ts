@@ -1,5 +1,5 @@
 import { Image, Gray, Resolution } from "systems/generation-2d/Image";
-import { generate2d, generate, blend } from "systems/generation-2d/utils";
+import { generate2d, generate } from "systems/generation-2d/utils";
 import { having, clamp } from "utilities/misc";
 
 type Params = {
