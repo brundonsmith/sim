@@ -100,7 +100,7 @@ renderer.domElement.addEventListener('click', e =>
     (<HTMLElement>e.target).requestPointerLock()
 )
 window.addEventListener('keydown', e => {
-    if(e.key === 'Q') {
+    if(e.code === 'KeyQ') {
         exit = true;
     }
 })

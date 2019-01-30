@@ -39,13 +39,13 @@ class Input {
       }
     })
     window.addEventListener('keydown', (e) => {
-      if(!this.keyDown(e.key)) {
-        this.keyState[e.key.toLowerCase()] = PRESSED
+      if(!this.keyDown(e.code)) {
+        this.keyState[e.code.toLowerCase()] = PRESSED
       }
     })
     window.addEventListener('keyup', (e) => {
-      if(!this.keyUp(e.key)) {
-        this.keyState[e.key.toLowerCase()] = RELEASED
+      if(!this.keyUp(e.code)) {
+        this.keyState[e.code.toLowerCase()] = RELEASED
       }
     })
   }

@@ -37,16 +37,16 @@ export default [
         update: (entity: Entity & WithCannonBody) => {
     
             let moveDirection = new CANNON.Vec3(0, 0, 0);
-            if(Input.keyDown('W')) {
+            if(Input.keyDown('KeyW')) {
                 moveDirection.vadd(forward(entity.cannonBody.quaternion), moveDirection);
             }
-            if(Input.keyDown('S')) {
+            if(Input.keyDown('KeyS')) {
                 moveDirection.vadd(backward(entity.cannonBody.quaternion), moveDirection);
             }
-            if(Input.keyDown('A')) {
+            if(Input.keyDown('KeyA')) {
                 moveDirection.vadd(left(entity.cannonBody.quaternion), moveDirection);
             }
-            if(Input.keyDown('D')) {
+            if(Input.keyDown('KeyD')) {
                 moveDirection.vadd(right(entity.cannonBody.quaternion), moveDirection);
             }
             moveDirection.normalize();
