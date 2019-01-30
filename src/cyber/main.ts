@@ -1,20 +1,43 @@
 import * as THREE from 'three';
 import * as CANNON from 'cannon';
 import { createBox, createQuaternion, createPlane, createDirectionalLight, createPlayer, createAmbientLight } from './entityConstructors';
-import { physicsRenderSystem, movementSystem, lookingSystem } from './systems';
 import Input from './Input';
-
 
 // ECS
 var entities: Array<Entity> = [];
-var systems: Array<System> = [];
+import systems from './systems';
+import { FRAME_LENGTH } from './constants';
 
-// systems
-systems.push(physicsRenderSystem);
-systems.push(movementSystem);
-systems.push(lookingSystem);
 
-// initialize
+// populate scene
+/*
+let cam = createCamera();
+cam.threeObject.position.set(0, 3, 10)
+entities.push(cam);
+*/
+
+let player = createPlayer();
+player.cannonBody.position = new CANNON.Vec3(0, 4, 10);
+entities.push(player);
+
+let box = createBox(1, 1, 1);
+box.cannonBody.position = new CANNON.Vec3(0, 3, 0);
+box.cannonBody.quaternion = createQuaternion(1, 1, 1);
+entities.push(box);
+
+let plane = createPlane();
+plane.cannonBody.quaternion.setFromEuler(-1.5708, 0, 0);
+entities.push(plane);
+
+let light = createAmbientLight(0xFFFFFF, 0.2);
+entities.push(light);
+
+let light2 = createDirectionalLight(0x00AAAA, 0.5);
+light2.threeObject.rotation.set(-1 * Math.PI / 4, -1 * Math.PI / 4, 0);
+entities.push(light2);
+
+
+// initialize containers
 var threeScene: THREE.Scene;
 var cannonWorld: CANNON.World;
 var renderer: THREE.WebGLRenderer;
@@ -37,37 +60,18 @@ var renderer: THREE.WebGLRenderer;
 }
 
 
-// populate scene
-/*
-let cam = createCamera();
-cam.threeObject.position.set(0, 3, 10)
-entities.push(cam);
-*/
-
-let player = createPlayer();
-player.cannonBody.position = new CANNON.Vec3(0, 4, 10);
-entities.push(player);
-
-
-let box = createBox(1, 1, 1);
-box.cannonBody.position = new CANNON.Vec3(0, 3, 0);
-box.cannonBody.quaternion = createQuaternion(1, 1, 1);
-entities.push(box);
-
-let plane = createPlane();
-plane.cannonBody.quaternion.setFromEuler(-1.5708, 0, 0);
-entities.push(plane);
-
-let light = createAmbientLight(0xFFFFFF, 0.2);
-entities.push(light);
-
-let light2 = createDirectionalLight(0x00AAAA, 0.5);
-light2.threeObject.rotation.set(-1 * Math.PI / 4, -1 * Math.PI / 4, 0);
-entities.push(light2);
+// register entities
+entities.forEach(entity => {
+    if(entity.threeObject) {
+        threeScene.add(entity.threeObject);
+    }
+    if(entity.cannonBody) {
+        cannonWorld.addBody(entity.cannonBody);
+    }
+})
 
 
 // begin and loop
-const FRAME_LENGTH = 1 / 60 * 1000
 var previousTick: number|null = null;
 var exit = false;
 const tick = () => {
@@ -91,9 +95,6 @@ const tick = () => {
         setTimeout(() => requestAnimationFrame(tick), FRAME_LENGTH - delta);
     }
 }
-interface HTMLElement {
-    requestPointerLock: Function
-} 
 renderer.domElement.addEventListener('click', e => 
     //@ts-ignore
     (<HTMLElement>e.target).requestPointerLock()
@@ -103,14 +104,4 @@ window.addEventListener('keydown', e => {
         exit = true;
     }
 })
-
-entities.forEach(entity => {
-    if(entity.threeObject) {
-        threeScene.add(entity.threeObject);
-    }
-    if(entity.cannonBody) {
-        cannonWorld.addBody(entity.cannonBody);
-    }
-})
-
 tick();
