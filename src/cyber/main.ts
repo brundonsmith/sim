@@ -1,7 +1,8 @@
 import * as THREE from 'three';
 import * as CANNON from 'cannon';
-import { createCamera, createBox, createQuaternion, createPlane, createDirectionalLight } from './entityCreators';
-import { physicsRenderSystem } from './systems';
+import { createBox, createQuaternion, createPlane, createDirectionalLight, createPlayer, createAmbientLight } from './entityConstructors';
+import { physicsRenderSystem, movementSystem, lookingSystem } from './systems';
+import Input from './Input';
 
 
 // ECS
@@ -10,6 +11,8 @@ var systems: Array<System> = [];
 
 // systems
 systems.push(physicsRenderSystem);
+systems.push(movementSystem);
+systems.push(lookingSystem);
 
 // initialize
 var threeScene: THREE.Scene;
@@ -35,9 +38,16 @@ var renderer: THREE.WebGLRenderer;
 
 
 // populate scene
+/*
 let cam = createCamera();
-cam.threeObject.position.set(0, 3, 20)
+cam.threeObject.position.set(0, 3, 10)
 entities.push(cam);
+*/
+
+let player = createPlayer();
+player.cannonBody.position = new CANNON.Vec3(0, 4, 10);
+entities.push(player);
+
 
 let box = createBox(1, 1, 1);
 box.cannonBody.position = new CANNON.Vec3(0, 3, 0);
@@ -48,9 +58,12 @@ let plane = createPlane();
 plane.cannonBody.quaternion.setFromEuler(-1.5708, 0, 0);
 entities.push(plane);
 
-let light = createDirectionalLight();
-light.threeObject.rotation.set(-0.785, 0.2, 0);
+let light = createAmbientLight(0xFFFFFF, 0.2);
 entities.push(light);
+
+let light2 = createDirectionalLight(0x00AAAA, 0.5);
+light2.threeObject.rotation.set(-1 * Math.PI / 4, -1 * Math.PI / 4, 0);
+entities.push(light2);
 
 
 // begin and loop
@@ -65,19 +78,28 @@ const tick = () => {
     cannonWorld.step(1 / 600, delta / 1000, 10);
 
     // render
-    renderer.render(threeScene, cam.threeObject);
+    renderer.render(threeScene, player.threeObject.children[0] as THREE.Camera);
 
     // systems
     entities.forEach(entity => 
         systems.forEach(system => 
             system.filter(entity) && system.update(entity, delta)))
 
+    Input.update();
+
     if(!exit) {
         setTimeout(() => requestAnimationFrame(tick), FRAME_LENGTH - delta);
     }
 }
+interface HTMLElement {
+    requestPointerLock: Function
+} 
+renderer.domElement.addEventListener('click', e => 
+    //@ts-ignore
+    (<HTMLElement>e.target).requestPointerLock()
+)
 window.addEventListener('keydown', e => {
-    if(e.key === 'Escape') {
+    if(e.key === 'Q') {
         exit = true;
     }
 })

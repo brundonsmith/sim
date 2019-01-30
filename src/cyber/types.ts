@@ -1,5 +1,6 @@
 
 type Entity = {
+    tags: Array<string>,
     [key: string]: any
 }
 
