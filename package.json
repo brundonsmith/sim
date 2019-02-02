@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "tsc ; webpack",
+    "build": "cp src/index.html dist/index.html ; webpack",
+    "watch": "cp src/index.html dist/index.html ; webpack --watch",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
@@ -12,8 +13,13 @@
   "dependencies": {
     "@types/cannon": "^0.1.3",
     "@types/three": "^0.93.18",
+    "ammo.js": "github:kripken/ammo.js",
     "cannon": "^0.6.2",
     "mobx": "^5.9.0",
-    "three": "^0.100.0"
+    "three": "0.100.0"
+  },
+  "devDependencies": {
+    "ts-loader": "^5.3.3",
+    "typescript": "^3.3.1"
   }
 }

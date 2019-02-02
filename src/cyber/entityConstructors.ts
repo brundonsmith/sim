@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import * as CANNON from 'cannon';
 import { EULER_ORDER } from './constants';
+import { Entity, WithThreeCamera, WithThreeObject, WithCannonBody, WithThreeLight, WithScoutProperties } from './types';
 
 export const createCamera
     : () => Entity & WithThreeCamera
@@ -86,6 +87,31 @@ export const createPlayer
 
         return player;
     }
+
+export const createScout
+    : () => Entity & WithThreeObject & WithCannonBody & WithScoutProperties
+    = () => ({
+        tags: [ 'scout' ],
+        threeObject: Object.assign(new THREE.Mesh(
+            new THREE.BoxGeometry(1, 1, 1),
+            new THREE.MeshStandardMaterial()
+        ), { castShadow: true, receiveShadow: true }),
+        cannonBody: new CANNON.Body({
+            mass: 1,
+            material: new CANNON.Material({
+                friction: 0.3
+            }),
+            shape: new CANNON.Box(new CANNON.Vec3(
+                1 / 2,
+                1 / 2,
+                1 / 2
+            )),
+        }),
+        scoutProperties: {
+            destination: null,
+            speed: 1
+        }
+    })
 
 
 export const createCapsule

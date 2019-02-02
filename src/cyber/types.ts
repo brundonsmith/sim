@@ -1,19 +1,26 @@
+import * as THREE from 'three';
+import * as CANNON from 'cannon';
 
-type Entity = {
+export type Entity = {
     tags: Array<string>,
     [key: string]: any
 }
 
-type System = {
+export type System = {
     filter: (entity: Entity) => boolean,
     update: (entity: Entity, delta: number) => void,
 }
 
 
-type WithCannonBody = { cannonBody: CANNON.Body }
+export type WithCannonBody = { cannonBody: CANNON.Body }
 
-type WithThreeObject = { threeObject: THREE.Object3D }
+export type WithThreeObject = { threeObject: THREE.Object3D }
 
-type WithThreeCamera = { threeObject: THREE.Camera }
+export type WithThreeCamera = { threeObject: THREE.Camera }
 
-type WithThreeLight = { threeObject: THREE.Light }
+export type WithThreeLight = { threeObject: THREE.Light }
+
+export type WithScoutProperties = { scoutProperties: {
+    destination: CANNON.Vec3|null,
+    speed: 1
+} }

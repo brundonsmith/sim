@@ -1,12 +1,13 @@
 import * as THREE from 'three';
 import * as CANNON from 'cannon';
-import { createBox, createQuaternion, createPlane, createDirectionalLight, createPlayer, createAmbientLight } from './entityConstructors';
+import { createBox, createQuaternion, createPlane, createDirectionalLight, createPlayer, createAmbientLight, createScout } from './entityConstructors';
 import Input from './Input';
+import { Entity } from './types';
 
 // ECS
 var entities: Array<Entity> = [];
 import systems from './systems';
-import { FRAME_LENGTH } from './constants';
+import { FRAME_LENGTH, GRAVITY } from './constants';
 
 
 // populate scene
@@ -36,6 +37,10 @@ let light2 = createDirectionalLight(0x00AAAA, 0.5);
 light2.threeObject.rotation.set(-1 * Math.PI / 4, -1 * Math.PI / 4, 0);
 entities.push(light2);
 
+let scout = createScout();
+scout.cannonBody.position = new CANNON.Vec3(1, 4, 1);
+entities.push(scout);
+
 
 // initialize containers
 var threeScene: THREE.Scene;
@@ -47,7 +52,7 @@ var renderer: THREE.WebGLRenderer;
     threeScene.add(new THREE.AxesHelper(1));
 
     cannonWorld = new CANNON.World();
-    cannonWorld.gravity.set(0, -9.82, 0);
+    cannonWorld.gravity.set(0, GRAVITY, 0);
     cannonWorld.broadphase = new CANNON.NaiveBroadphase();
     cannonWorld.solver.iterations = 15;
 
