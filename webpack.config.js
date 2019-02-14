@@ -12,6 +12,10 @@ module.exports = {
         modules: [ path.resolve(__dirname, 'src'), path.resolve(__dirname, 'node_modules') ],
         // directories where to look for modules
         extensions: [ ".ts", ".js" ],
+
+        alias: {
+            'oimo$': path.resolve(__dirname, 'lib/OimoPhysics.min.js')
+        }
     },
     module: {
         rules: [

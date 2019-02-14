@@ -1,6 +1,7 @@
 import * as THREE from 'three';
-import * as CANNON from 'cannon';
-import { createBox, createQuaternion, createPlane, createDirectionalLight, createPlayer, createAmbientLight, createScout } from './entityConstructors';
+import OIMO from 'oimo';
+
+import { createBox, createPlane, createDirectionalLight, createPlayer, createAmbientLight, createScout } from './entityConstructors';
 import Input from './Input';
 import { Entity } from './types';
 
@@ -18,16 +19,15 @@ entities.push(cam);
 */
 
 let player = createPlayer();
-player.cannonBody.position = new CANNON.Vec3(0, 4, 10);
+player.oimoBody.setPosition(new OIMO.Vec3(0, 4, 10));
 entities.push(player);
 
 let box = createBox(1, 1, 1);
-box.cannonBody.position = new CANNON.Vec3(0, 3, 0);
-box.cannonBody.quaternion = createQuaternion(1, 1, 1);
+box.oimoBody.setPosition(new OIMO.Vec3(0, 3, 0));
+box.oimoBody.setOrientation(new OIMO.Quat(1, 1, 1, 1));
 entities.push(box);
 
 let plane = createPlane();
-plane.cannonBody.quaternion.setFromEuler(-1.5708, 0, 0);
 entities.push(plane);
 
 let light = createAmbientLight(0xFFFFFF, 0.2);
@@ -38,30 +38,27 @@ light2.threeObject.rotation.set(-1 * Math.PI / 4, -1 * Math.PI / 4, 0);
 entities.push(light2);
 
 let scout = createScout();
-scout.cannonBody.position = new CANNON.Vec3(1, 4, 1);
+scout.oimoBody.setPosition(new OIMO.Vec3(1, 4, 1));
 entities.push(scout);
 
 
 // initialize containers
 var threeScene: THREE.Scene;
-var cannonWorld: CANNON.World;
+var oimoWorld: OIMO.World;
 var renderer: THREE.WebGLRenderer;
 {
     threeScene = new THREE.Scene();
     threeScene.add(new THREE.AmbientLight(0x404040));
     threeScene.add(new THREE.AxesHelper(1));
 
-    cannonWorld = new CANNON.World();
-    cannonWorld.gravity.set(0, GRAVITY, 0);
-    cannonWorld.broadphase = new CANNON.NaiveBroadphase();
-    cannonWorld.solver.iterations = 15;
+    oimoWorld = new OIMO.World(OIMO.BroadPhaseType.BVH, new OIMO.Vec3(0, GRAVITY, 0));
 
     renderer = new THREE.WebGLRenderer();
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.shadowMap.enabled = true;
     document.body.appendChild(renderer.domElement);
 
-    console.log({ threeScene, cannonWorld })
+    console.log({ threeScene, oimoWorld })
 }
 
 
@@ -70,8 +67,8 @@ entities.forEach(entity => {
     if(entity.threeObject) {
         threeScene.add(entity.threeObject);
     }
-    if(entity.cannonBody) {
-        cannonWorld.addBody(entity.cannonBody);
+    if(entity.oimoBody) {
+        oimoWorld.addRigidBody(entity.oimoBody);
     }
 })
 
@@ -80,11 +77,11 @@ entities.forEach(entity => {
 var previousTick: number|null = null;
 var exit = false;
 const tick = () => {
-    let delta = previousTick ? Date.now() - previousTick : 0;
-    previousTick = Date.now();
+    let delta = previousTick ? Date.now() / 1000 - previousTick : 0;
+    previousTick = Date.now() / 1000;
 
     // update physics
-    cannonWorld.step(1 / 600, delta / 1000, 10);
+    oimoWorld.step(delta);
 
     // render
     renderer.render(threeScene, player.threeObject.children[0] as THREE.Camera);

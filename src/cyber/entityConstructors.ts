@@ -1,7 +1,8 @@
 import * as THREE from 'three';
-import * as CANNON from 'cannon';
+import * as OIMO from 'oimo';
 import { EULER_ORDER } from './constants';
-import { Entity, WithThreeCamera, WithThreeObject, WithCannonBody, WithThreeLight, WithScoutProperties } from './types';
+import { Entity, WithThreeCamera, WithThreeObject, WithOimoBody, WithThreeLight, WithScoutProperties } from './types';
+import { initRigidbody, initMassData, initShape, initShapeConfig, initRigidbodyConfig } from './utils/oimo';
 
 export const createCamera
     : () => Entity & WithThreeCamera
@@ -11,48 +12,48 @@ export const createCamera
     })
 
 export const createBox
-    : (width: number, height: number, depth: number) => Entity & WithThreeObject & WithCannonBody
+    : (width: number, height: number, depth: number) => Entity & WithThreeObject & WithOimoBody
     = (width, height, depth) => ({
         tags: [],
         threeObject: Object.assign(new THREE.Mesh(
             new THREE.BoxGeometry(width, height, depth),
             new THREE.MeshStandardMaterial()
         ), { castShadow: true, receiveShadow: true }),
-        cannonBody: new CANNON.Body({
-            mass: 1,
-            material: new CANNON.Material({
-                friction: 0.3
-            }),
-            shape: new CANNON.Box(new CANNON.Vec3(
-                width / 2,
-                height / 2,
-                depth / 2
-            )),
+        oimoBody: initRigidbody({
+            shapes: [
+                initShape({
+                    config: initShapeConfig({
+                        friction: 0.3,
+                        geometry: new OIMO.BoxGeometry(new OIMO.Vec3(width / 2, height / 2, depth / 2))
+                    })
+                })
+            ],
+            massData: initMassData({
+                mass: 1
+            })
         })
     })
 
-export const createQuaternion
-    : (x: number, y: number, z: number) => CANNON.Quaternion
-    = (x, y, z) => {
-        let q = new CANNON.Quaternion();
-        q.setFromEuler(x, y, z, EULER_ORDER)
-        return q;
-    }
-
 export const createPlane
-    : () => Entity & WithThreeObject & WithCannonBody
+    : () => Entity & WithThreeObject & WithOimoBody
     = () => ({
         tags: [],
         threeObject: Object.assign(new THREE.Mesh(
             new THREE.PlaneGeometry(1000, 1000),
             new THREE.MeshStandardMaterial()
         ), { castShadow: true, receiveShadow: true }),
-        cannonBody: new CANNON.Body({
-            mass: 0,
-            material: new CANNON.Material({
-                friction: 0.3
-            }),
-            shape: new CANNON.Plane(),
+        oimoBody: initRigidbody({
+            shapes: [
+                initShape({
+                    config: initShapeConfig({
+                        friction: 0.3,
+                        geometry: new OIMO.BoxGeometry(new OIMO.Vec3(100, 0.1, 100))
+                    })
+                })
+            ],
+            massData: initMassData({
+                mass: 0
+            })
         })
     })
 
@@ -73,13 +74,28 @@ export const createDirectionalLight
     })
 
 export const createPlayer
-    : () => Entity & WithThreeObject & WithCannonBody
+    : () => Entity & WithThreeObject & WithOimoBody
     = () => {
         let cam = createCamera();
         let player = { 
             tags: [ 'player' ],
             threeObject: new THREE.Group(),
-            cannonBody: createCapsule(1, 2),
+            oimoBody: initRigidbody({
+                config: initRigidbodyConfig({
+                    angularDamping: 1,
+                }),
+                shapes: [
+                    initShape({
+                        config: initShapeConfig({
+                            friction: 0,
+                            geometry: new OIMO.CapsuleGeometry(1, 1)
+                        })
+                    })
+                ],
+                massData: initMassData({
+                    mass: 1
+                })
+            })
         };
 
         // HACK
@@ -89,55 +105,28 @@ export const createPlayer
     }
 
 export const createScout
-    : () => Entity & WithThreeObject & WithCannonBody & WithScoutProperties
+    : () => Entity & WithThreeObject & WithOimoBody & WithScoutProperties
     = () => ({
         tags: [ 'scout' ],
         threeObject: Object.assign(new THREE.Mesh(
             new THREE.BoxGeometry(1, 1, 1),
             new THREE.MeshStandardMaterial()
         ), { castShadow: true, receiveShadow: true }),
-        cannonBody: new CANNON.Body({
-            mass: 1,
-            material: new CANNON.Material({
-                friction: 0.3
-            }),
-            shape: new CANNON.Box(new CANNON.Vec3(
-                1 / 2,
-                1 / 2,
-                1 / 2
-            )),
+        oimoBody: initRigidbody({
+            shapes: [
+                initShape({
+                    config: initShapeConfig({
+                        friction: 0.3,
+                        geometry: new OIMO.BoxGeometry(new OIMO.Vec3(1/2, 1/2, 1/2))
+                    })
+                })
+            ],
+            massData: initMassData({
+                mass: 1
+            })
         }),
         scoutProperties: {
             destination: null,
             speed: 1
         }
     })
-
-
-export const createCapsule
-    : (radius: number, height: number, segments?: number) => CANNON.Body
-    = (radius, height, segments = 16) => {
-        let body = new CANNON.Body({
-            mass: 1,
-            material: new CANNON.Material({
-                friction: 0
-            }),
-            fixedRotation: true
-        })
-
-        body.addShape(
-            new CANNON.Cylinder(radius, radius, height, segments), 
-            new CANNON.Vec3(0, 0, 0)
-        )
-        body.addShape(
-            new CANNON.Sphere(radius), 
-            new CANNON.Vec3(0, height / 2, 0)
-        )
-        body.addShape(
-            new CANNON.Sphere(radius), 
-            new CANNON.Vec3(0, -1 * height / 2, 0)
-        )
-
-        return body;
-    }
-

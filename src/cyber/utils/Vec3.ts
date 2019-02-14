@@ -1,25 +1,17 @@
-import * as CANNON from 'cannon';
-
-export const normalized
-    : (vec: CANNON.Vec3) => CANNON.Vec3
-    = (vec) => {
-        let norm = vec.clone();
-        norm.normalize();
-        return norm;
-    }
+import * as OIMO from 'oimo';
 
 export const forward
-    : (quat: CANNON.Quaternion) => CANNON.Vec3
-    = (quat) => quat.vmult(new CANNON.Vec3(0, 0, -1))
+    : (quat: OIMO.Quat) => OIMO.Vec3
+    = (quat) => new OIMO.Vec3(0, 0, -1).mulMat3Eq(quat.toMat3())
 
 export const backward
-    : (quat: CANNON.Quaternion) => CANNON.Vec3
-    = (quat) => quat.vmult(new CANNON.Vec3(0, 0, 1))
+    : (quat: OIMO.Quat) => OIMO.Vec3
+    = (quat) => new OIMO.Vec3(0, 0, 1).mulMat3Eq(quat.toMat3())
 
 export const left
-    : (quat: CANNON.Quaternion) => CANNON.Vec3
-    = (quat) => quat.vmult(new CANNON.Vec3(-1, 0, 0))
+    : (quat: OIMO.Quat) => OIMO.Vec3
+    = (quat) => new OIMO.Vec3(-1, 0, 0).mulMat3Eq(quat.toMat3())
 
 export const right
-    : (quat: CANNON.Quaternion) => CANNON.Vec3
-    = (quat) => quat.vmult(new CANNON.Vec3(1, 0, 0))
+    : (quat: OIMO.Quat) => OIMO.Vec3
+    = (quat) => new OIMO.Vec3(1, 0, 0).mulMat3Eq(quat.toMat3())
