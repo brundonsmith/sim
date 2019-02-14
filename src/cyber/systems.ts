@@ -8,6 +8,10 @@ import { clamp } from './utils/misc';
 import { Entity, System, WithThreeObject, WithScoutProperties, WithOimoBody } from './types';
 import { almostEqual, almostEqualVec } from './utils/oimo';
 
+const INVERSE_GRAVITY_VEC = new OIMO.Vec3(0, -1 * GRAVITY, 0);
+const FORWARD = new OIMO.Vec3(0, 0, -1);
+const ZERO = new OIMO.Vec3(0, 0, 0);
+
 export default [
 
     // physics-mirroring
@@ -23,9 +27,8 @@ export default [
             )
     
             // rotation
-            let physicalRot = entity.oimoBody.getOrientation();
-            entity.threeObject.rotation.setFromQuaternion(new THREE.Quaternion(
-                physicalRot.x, physicalRot.y, physicalRot.z, physicalRot.w))
+            let physicsRot = entity.oimoBody.getOrientation();
+            entity.threeObject.quaternion.set(physicsRot.x, physicsRot.y, physicsRot.z, physicsRot.w);
         }
     },
 
@@ -34,26 +37,27 @@ export default [
         filter: (entity) => entity.tags.includes('player'),
         update: (entity: Entity & WithOimoBody) => {
     
-            let moveDirection = new OIMO.Vec3(0, 0, 0);
+            let move = entity.oimoBody.getLinearVelocity();
+            let yVel = move.y;
+
+            move.init(0, 0, 0);
             if(Input.keyDown('KeyW')) {
-                moveDirection.addEq(forward(entity.oimoBody.getOrientation()));
+                move.addEq(forward(entity.oimoBody.getOrientation()));
             }
             if(Input.keyDown('KeyS')) {
-                moveDirection.addEq(backward(entity.oimoBody.getOrientation()));
+                move.addEq(backward(entity.oimoBody.getOrientation()));
             }
             if(Input.keyDown('KeyA')) {
-                moveDirection.addEq(left(entity.oimoBody.getOrientation()));
+                move.addEq(left(entity.oimoBody.getOrientation()));
             }
             if(Input.keyDown('KeyD')) {
-                moveDirection.addEq(right(entity.oimoBody.getOrientation()));
+                move.addEq(right(entity.oimoBody.getOrientation()));
             }
-            moveDirection.normalize();
-    
-            entity.oimoBody.setLinearVelocity(new OIMO.Vec3(
-                moveDirection.x * 10,
-                entity.oimoBody.getLinearVelocity().y,
-                moveDirection.z * 10
-            ))
+            move.normalize().scaleEq(10);
+
+            move.y = yVel;
+
+            entity.oimoBody.setLinearVelocity(move);
         }
     },
 
@@ -88,9 +92,9 @@ export default [
                 destination = entity.scoutProperties.destination = new OIMO.Vec3(Math.random() * 30 - 15, Math.random() * 5, Math.random() * 30 - 15);
             }
             let direction = destination.subEq(entity.oimoBody.getPosition());
-            entity.oimoBody.getOrientation().setArc(new OIMO.Vec3(0, 0, -1), direction);
+            entity.oimoBody.getOrientation().setArc(FORWARD, direction);
             motor(entity, direction, entity.scoutProperties.speed, 100);
-            entity.oimoBody.applyForceToCenter(new OIMO.Vec3(0, -1 * GRAVITY, 0));
+            entity.oimoBody.applyForceToCenter(INVERSE_GRAVITY_VEC);
         }
     }
 
@@ -110,7 +114,7 @@ const motor
             //console.log({ force: JSON.stringify(direction) })
             entity.oimoBody.applyForceToCenter(direction);
         } else {
-            entity.oimoBody.applyForceToCenter(new OIMO.Vec3(0, 0, 0))
+            entity.oimoBody.applyForceToCenter(ZERO)
         }
     }
 
