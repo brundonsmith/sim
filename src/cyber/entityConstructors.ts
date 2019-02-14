@@ -34,7 +34,7 @@ export const createBox
         })
     })
 
-export const createPlane
+export const createFloor
     : () => Entity & WithThreeObject & WithOimoBody
     = () => ({
         tags: [],
@@ -43,17 +43,17 @@ export const createPlane
             new THREE.MeshStandardMaterial()
         ), { castShadow: true, receiveShadow: true }),
         oimoBody: initRigidbody({
+            config: initRigidbodyConfig({
+                type: OIMO.RigidBodyType.STATIC,
+            }),
             shapes: [
                 initShape({
                     config: initShapeConfig({
-                        friction: 0.3,
+                        friction: 1,
                         geometry: new OIMO.BoxGeometry(new OIMO.Vec3(100, 0.1, 100))
                     })
                 })
-            ],
-            massData: initMassData({
-                mass: 0
-            })
+            ]
         })
     })
 

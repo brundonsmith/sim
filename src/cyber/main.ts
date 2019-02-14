@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import OIMO from 'oimo';
 
-import { createBox, createPlane, createDirectionalLight, createPlayer, createAmbientLight, createScout } from './entityConstructors';
+import { createBox, createFloor, createDirectionalLight, createPlayer, createAmbientLight, createScout } from './entityConstructors';
 import Input from './Input';
 import { Entity } from './types';
 
@@ -27,7 +27,7 @@ box.oimoBody.setPosition(new OIMO.Vec3(0, 3, 0));
 box.oimoBody.setOrientation(new OIMO.Quat(1, 1, 1, 1));
 entities.push(box);
 
-let plane = createPlane();
+let plane = createFloor();
 entities.push(plane);
 
 let light = createAmbientLight(0xFFFFFF, 0.2);
