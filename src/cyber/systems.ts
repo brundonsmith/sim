@@ -63,13 +63,11 @@ export default [
         update: (entity: Entity & WithOimoBody & WithThreeObject, delta) => {
             let deltaSeconds = delta / 1000;
             var turnDelta = TURN_SPEED * deltaSeconds;
-    /*
-            let rigidbodyEuler = new CANNON.Vec3();
-            entity.oimoBody.quaternion.toEuler(rigidbodyEuler, 'YZX');
-            entity.oimoBody.setRotation(new OIMO.Vec3(
-                rigidbodyEuler.x, rigidbodyEuler.y - Input.mouseDeltaX() * turnDelta, rigidbodyEuler.z));
-            entity.oimoBody.angularVelocity = new CANNON.Vec3(0, 0, 0);
-    */
+
+            let currentYRot = entity.oimoBody.getRotation().toEulerXyz().y;
+            entity.oimoBody.setRotationXyz(new OIMO.Vec3(
+                0, currentYRot - Input.mouseDeltaX() * turnDelta * 1000, 0));
+
             let camera = entity.threeObject.children.find(child => child instanceof THREE.Camera);
             if(camera != null) {
                 camera.rotation.x = clamp(camera.rotation.x - Input.mouseDeltaY() * turnDelta,
@@ -103,13 +101,13 @@ const motor
     : (entity: Entity & WithOimoBody, direction: OIMO.Vec3, speed: number, acceleration: number) => void
     = (entity, direction, speed = 1, acceleration = 100) => {
         if(almostEqual(direction.length(), 0.01)) {
-            console.log('dragging')
+            //console.log('dragging')
             let forceVec = entity.oimoBody.getLinearVelocity().normalized().scale(-1 * acceleration);
             entity.oimoBody.applyForceToCenter(forceVec);
         } else if(entity.oimoBody.getLinearVelocity().length() < speed || !almostEqualVec(direction, entity.oimoBody.getLinearVelocity().normalized(), 0.05)) {
-            console.log('motoring')
+            //console.log('motoring')
             direction = direction.normalized().scale(acceleration);
-            console.log({ force: JSON.stringify(direction) })
+            //console.log({ force: JSON.stringify(direction) })
             entity.oimoBody.applyForceToCenter(direction);
         } else {
             entity.oimoBody.applyForceToCenter(new OIMO.Vec3(0, 0, 0))

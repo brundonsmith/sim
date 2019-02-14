@@ -39,7 +39,7 @@ export const createPlane
     = () => ({
         tags: [],
         threeObject: Object.assign(new THREE.Mesh(
-            new THREE.PlaneGeometry(1000, 1000),
+            new THREE.BoxGeometry(100, 0.1, 100),
             new THREE.MeshStandardMaterial()
         ), { castShadow: true, receiveShadow: true }),
         oimoBody: initRigidbody({
@@ -82,7 +82,6 @@ export const createPlayer
             threeObject: new THREE.Group(),
             oimoBody: initRigidbody({
                 config: initRigidbodyConfig({
-                    angularDamping: 1,
                 }),
                 shapes: [
                     initShape({
