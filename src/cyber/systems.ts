@@ -8,6 +8,9 @@ import { clamp } from './utils/misc';
 import { Entity, System, WithThreeObject, WithScoutProperties, WithOimoBody } from './types';
 import { almostEqual, almostEqualVec } from './utils/oimo';
 
+const pool = new OIMO.Pool();
+
+const GRAVITY_VEC = new OIMO.Vec3(0, GRAVITY, 0);
 const INVERSE_GRAVITY_VEC = new OIMO.Vec3(0, -1 * GRAVITY, 0);
 const FORWARD = new OIMO.Vec3(0, 0, -1);
 const ZERO = new OIMO.Vec3(0, 0, 0);
@@ -58,6 +61,10 @@ export default [
             move.y = yVel;
 
             entity.oimoBody.setLinearVelocity(move);
+
+
+            // HACK: gravity
+            //entity.oimoBody.applyForce(GRAVITY_VEC, entity.oimoBody.getWorldPoint(ZERO));
         }
     },
 
@@ -69,8 +76,12 @@ export default [
             var turnDelta = TURN_SPEED * deltaSeconds;
 
             let currentYRot = entity.oimoBody.getRotation().toEulerXyz().y;
-            entity.oimoBody.setRotationXyz(new OIMO.Vec3(
-                0, currentYRot - Input.mouseDeltaX() * turnDelta * 1000, 0));
+            let xyz = pool.vec3();
+            xyz.x = 0;
+            xyz.y = currentYRot - Input.mouseDeltaX() * turnDelta * 1000;
+            xyz.z = 0;
+            entity.oimoBody.setRotationXyz(xyz);
+            pool.dispose(xyz);
 
             let camera = entity.threeObject.children.find(child => child instanceof THREE.Camera);
             if(camera != null) {
@@ -89,7 +100,13 @@ export default [
 
             // choose new destination
             if(destination == null || almostEqualVec(entity.oimoBody.getPosition(), destination)) {
-                destination = entity.scoutProperties.destination = new OIMO.Vec3(Math.random() * 30 - 15, Math.random() * 5, Math.random() * 30 - 15);
+                if(destination == null) {
+                    destination = new OIMO.Vec3();
+                }
+
+                destination.x = Math.random() * 30 - 15;
+                destination.y = Math.random() * 5;
+                destination.z = Math.random() * 30 - 15;
             }
             let direction = destination.subEq(entity.oimoBody.getPosition());
             entity.oimoBody.getOrientation().setArc(FORWARD, direction);
