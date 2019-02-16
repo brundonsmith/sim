@@ -8,3 +8,7 @@ export const clamp
             max 
         :
             x
+
+export const fallback = <T>(val: T, def: NonNullable<T>): NonNullable<T> =>
+    val == null ? def : (val as NonNullable<T>)
+        

@@ -22,12 +22,12 @@ let player = createPlayer();
 player.oimoBody.setPosition(new OIMO.Vec3(0, 4, 10));
 entities.push(player);
 
-let box = createBox(1, 1, 1);
+let box = createBox({ width: 1, height: 1, depth: 1 });
 box.oimoBody.setPosition(new OIMO.Vec3(0, 3, 0));
 box.oimoBody.setOrientation(new OIMO.Quat(1, 1, 1, 1));
 entities.push(box);
 
-let plane = createFloor();
+let plane = createFloor({ width: 100, depth: 100 });
 entities.push(plane);
 
 let light = createAmbientLight(0xFFFFFF, 0.2);
