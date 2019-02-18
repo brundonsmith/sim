@@ -1,19 +1,16 @@
 import * as THREE from 'three';
 import OIMO from 'oimo';
 
-import { TURN_SPEED, LOOK_LIMIT, GRAVITY } from "./constants";
+import { TURN_SPEED, LOOK_LIMIT, GRAVITY, ZERO, FORWARD } from "./constants";
 import Input from './Input';
 import { forward, backward, left, right } from './utils/Vec3';
 import { clamp } from './utils/misc';
-import { Entity, System, WithThreeObject, WithScoutProperties, WithOimoBody } from './types';
+import { Entity, System, WithThreeObject, WithScoutProperties, WithOimoBody, WithFollow } from './types';
 import { almostEqual, almostEqualVec } from './utils/oimo';
-
-const pool = new OIMO.Pool();
+import { findInChildren } from './utils/three';
 
 const GRAVITY_VEC = new OIMO.Vec3(0, GRAVITY, 0);
 const INVERSE_GRAVITY_VEC = new OIMO.Vec3(0, -1 * GRAVITY, 0);
-const FORWARD = new OIMO.Vec3(0, 0, -1);
-const ZERO = new OIMO.Vec3(0, 0, 0);
 
 export default [
 
@@ -61,10 +58,6 @@ export default [
             move.y = yVel;
 
             entity.oimoBody.setLinearVelocity(move);
-
-
-            // HACK: gravity
-            //entity.oimoBody.applyForce(GRAVITY_VEC, entity.oimoBody.getWorldPoint(ZERO));
         }
     },
 
@@ -72,18 +65,12 @@ export default [
     {
         filter: (entity) => entity.tags.includes('player'),
         update: (entity: Entity & WithOimoBody & WithThreeObject, delta) => {
-            let deltaSeconds = delta / 1000;
-            var turnDelta = TURN_SPEED * deltaSeconds;
+            var turnDelta = TURN_SPEED * delta;
 
-            let currentYRot = entity.oimoBody.getRotation().toEulerXyz().y;
-            let xyz = pool.vec3();
-            xyz.x = 0;
-            xyz.y = currentYRot - Input.mouseDeltaX() * turnDelta * 1000;
-            xyz.z = 0;
-            entity.oimoBody.setRotationXyz(xyz);
-            pool.dispose(xyz);
+            entity.oimoBody.setAngularVelocity(ZERO);
+            entity.oimoBody.setRotation(entity.oimoBody.getRotation().appendRotation(-1 * Input.mouseDeltaX() * turnDelta, 0, 1, 0))
 
-            let camera = entity.threeObject.children.find(child => child instanceof THREE.Camera);
+            let camera = findInChildren(entity.threeObject, child => child instanceof THREE.Camera);
             if(camera != null) {
                 camera.rotation.x = clamp(camera.rotation.x - Input.mouseDeltaY() * turnDelta,
                                             -1 * LOOK_LIMIT,
@@ -112,6 +99,18 @@ export default [
             entity.oimoBody.getOrientation().setArc(FORWARD, direction);
             motor(entity, direction, entity.scoutProperties.speed, 100);
             entity.oimoBody.applyForceToCenter(INVERSE_GRAVITY_VEC);
+        }
+    },
+
+    // following
+    {
+        filter: (entity) => entity.followTarget,
+        update: (entity: Entity & WithThreeObject & WithFollow, delta) => {
+            entity.threeObject.position.set(
+                entity.followTarget.position.x + (entity.followOffset ? entity.followOffset.x : 0),
+                entity.followTarget.position.y + (entity.followOffset ? entity.followOffset.y : 0),
+                entity.followTarget.position.z + (entity.followOffset ? entity.followOffset.z : 0)
+            );
         }
     }
 
