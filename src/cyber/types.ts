@@ -24,3 +24,8 @@ export type WithScoutProperties = { scoutProperties: {
     destination: OIMO.Vec3|null,
     speed: 1
 } }
+
+export type WithFollow = { 
+    followTarget: THREE.Object3D,
+    followOffset?: THREE.Vector3
+}
