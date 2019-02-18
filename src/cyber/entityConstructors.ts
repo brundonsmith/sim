@@ -3,6 +3,7 @@ import * as OIMO from 'oimo';
 import { Entity, WithThreeCamera, WithThreeObject, WithOimoBody, WithThreeLight, WithScoutProperties } from './types';
 import { initRigidbody, initMassData, initShape, initShapeConfig, initRigidbodyConfig } from './utils/oimo';
 import { fallback } from './utils/misc';
+import { ZERO } from './constants';
 
 type BasicProps = {
     position?: OIMO.Vec3,
