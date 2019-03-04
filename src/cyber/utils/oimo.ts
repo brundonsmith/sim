@@ -54,3 +54,5 @@ export const almostEqualVec = (vec1: OIMO.Vec3, vec2: OIMO.Vec3, threshold: numb
 
 export const almostEqual = (num1: number, num2: number, threshold: number = 0.1) =>
     Math.abs(num1 - num2) < threshold
+
+    

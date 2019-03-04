@@ -5,9 +5,10 @@ import { TURN_SPEED, LOOK_LIMIT, GRAVITY, ZERO, FORWARD } from "./constants";
 import Input from './Input';
 import { forward, backward, left, right } from './utils/Vec3';
 import { clamp } from './utils/misc';
-import { Entity, System, WithThreeObject, WithScoutProperties, WithOimoBody, WithFollow } from './types';
+import { Entity, System, WithScoutProperties, WithFollow, WithOimoBody } from './types';
 import { almostEqual, almostEqualVec } from './utils/oimo';
 import { findInChildren } from './utils/three';
+import { hasOimoBody, hasFollow, setPosition } from './utils/entity';
 
 const GRAVITY_VEC = new OIMO.Vec3(0, GRAVITY, 0);
 const INVERSE_GRAVITY_VEC = new OIMO.Vec3(0, -1 * GRAVITY, 0);
@@ -16,8 +17,8 @@ export default [
 
     // physics-mirroring
     {
-        filter: (entity) => entity.oimoBody && entity.threeObject,
-        update: (entity: Entity & WithOimoBody & WithThreeObject) => {
+        filter: (entity: Entity) => hasOimoBody(entity),
+        update: (entity: Entity & WithOimoBody) => {
     
             // position
             entity.threeObject.position.set(
@@ -31,6 +32,9 @@ export default [
             entity.threeObject.quaternion.set(physicsRot.x, physicsRot.y, physicsRot.z, physicsRot.w);
         }
     },
+
+    // TODO: Keep OIMO shape local transform in sync with three object local transform if necessary
+
 
     // player movement
     {
@@ -64,7 +68,7 @@ export default [
     // player looking
     {
         filter: (entity) => entity.tags.includes('player'),
-        update: (entity: Entity & WithOimoBody & WithThreeObject, delta) => {
+        update: (entity: Entity & WithOimoBody, delta) => {
             var turnDelta = TURN_SPEED * delta;
 
             entity.oimoBody.setAngularVelocity(ZERO);
@@ -82,7 +86,7 @@ export default [
     // scouts
     {
         filter: (entity) => entity.tags.includes('scout'),
-        update: (entity: Entity & WithOimoBody & WithScoutProperties, delta) => {
+        update: (entity: Entity & WithScoutProperties & WithOimoBody, delta) => {
             let destination = entity.scoutProperties.destination;
 
             // choose new destination
@@ -104,13 +108,11 @@ export default [
 
     // following
     {
-        filter: (entity) => entity.followTarget,
-        update: (entity: Entity & WithThreeObject & WithFollow, delta) => {
-            entity.threeObject.position.set(
-                entity.followTarget.position.x + (entity.followOffset ? entity.followOffset.x : 0),
-                entity.followTarget.position.y + (entity.followOffset ? entity.followOffset.y : 0),
-                entity.followTarget.position.z + (entity.followOffset ? entity.followOffset.z : 0)
-            );
+        filter: (entity: Entity) => hasFollow(entity),
+        update: (entity: Entity & WithFollow, delta) => {
+            if(entity.followTarget != null) {
+                setPosition(entity, entity.followTarget.position.clone().add(entity.followOffset || new THREE.Vector3()))
+            }
         }
     }
 

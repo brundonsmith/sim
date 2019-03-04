@@ -1,0 +1,31 @@
+[
+    {
+        "tags": [ "player" ],
+        "threeObject": {
+            "type": "Group",
+            "children": [
+                {
+                    "tags": [ "camera" ],
+                    "threeObject": {
+                        "type": "PerspectiveCamera",
+                        "fov": 75,
+                        "aspect": 1.33,
+                        "near": 0.1,
+                        "far": 1000
+                    }
+                }
+            ]
+        },
+        "oimoBody": {
+            "position": { "x": -5, "y": 5, "z": 20 },
+            "friction": 0,
+            "shapes": [
+                {
+                    "type": "CapsuleGeometry",
+                    "radius": 1,
+                    "halfExtents": 1
+                }
+            ]
+        }
+    }
+]

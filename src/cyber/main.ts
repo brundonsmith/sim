@@ -10,6 +10,7 @@ var entities: Array<Entity> = [];
 import systems from './systems';
 import { FRAME_LENGTH, GRAVITY } from './constants';
 import { findInChildren, alreadyAdded } from './utils/three';
+import { hasOimoBody } from './utils/entity';
 
 // populate scene
 
@@ -55,7 +56,6 @@ entities.push(createScout({
     position: new OIMO.Vec3(35, 3, -5) 
 }));
 
-
 for(let x = -500; x < 500; x += 50)
     for(let z = -500; z < 500; z += 50)
         entities.push(createBuilding({
@@ -65,7 +65,6 @@ for(let x = -500; x < 500; x += 50)
             depth: 40,
             height: 20 + Math.random() * 40
         }))
-//*/
 
 // initialize containers
 var threeScene: THREE.Scene;
@@ -92,7 +91,7 @@ entities.forEach(entity => {
     if(entity.threeObject && !alreadyAdded(threeScene, entity.threeObject)) {
         threeScene.add(entity.threeObject);
     }
-    if(entity.oimoBody) {
+    if(hasOimoBody(entity)) {
         oimoWorld.addRigidBody(entity.oimoBody);
 
         entity.threeObject.position.set(

@@ -3,7 +3,7 @@ import * as OIMO from 'oimo';
 
 export type Entity = {
     tags: Array<string>,
-    [key: string]: any
+    threeObject: THREE.Object3D,
 }
 
 export type System = {
@@ -11,10 +11,7 @@ export type System = {
     update: (entity: Entity, delta: number) => void,
 }
 
-
 export type WithOimoBody = { oimoBody: OIMO.RigidBody }
-
-export type WithThreeObject = { threeObject: THREE.Object3D }
 
 export type WithThreeCamera = { threeObject: THREE.Camera }
 
@@ -26,6 +23,6 @@ export type WithScoutProperties = { scoutProperties: {
 } }
 
 export type WithFollow = { 
-    followTarget: THREE.Object3D,
-    followOffset?: THREE.Vector3
+    followTarget: THREE.Object3D|null,
+    followOffset: THREE.Vector3|null
 }
