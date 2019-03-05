@@ -1,7 +1,6 @@
 import * as THREE from 'three';
 import OIMO from 'oimo';
 
-import { createBox, createFloor, createDirectionalLight, createPlayer, createAmbientLight, createScout, createBuilding, createCamera } from './entityConstructors';
 import Input from './Input';
 import { Entity } from './types';
 
@@ -19,12 +18,13 @@ let cam = createCamera();
 cam.threeObject.position.set(0, 3, 10)
 entities.push(cam);
 //*/
-
+/*
 let player = createPlayer({ 
     position: new OIMO.Vec3(-5, 5, 20)
 })
 entities.push(player);//*/
 
+/*
 entities.push(createBox({ 
     width: 1, 
     height: 1, 
@@ -38,9 +38,10 @@ entities.push(createFloor({
     width: 1000, 
     depth: 1000 
 }));
+*/
 
 //entities.push(createAmbientLight(0xFFFFFF, 0.2));
-
+/*
 let light = createDirectionalLight(0x00AAAA, 0.5);
 entities.push(light);
 light.followTarget = player.threeObject;
@@ -55,7 +56,8 @@ lightSecondary.followOffset = new THREE.Vector3(-1000, 1000, -1000)
 entities.push(createScout({ 
     position: new OIMO.Vec3(35, 3, -5) 
 }));
-
+*/
+/*
 for(let x = -500; x < 500; x += 50)
     for(let z = -500; z < 500; z += 50)
         entities.push(createBuilding({
@@ -65,6 +67,17 @@ for(let x = -500; x < 500; x += 50)
             depth: 40,
             height: 20 + Math.random() * 40
         }))
+*/
+
+import scene from './data/scene1.json';
+import { constructEntity } from './init/general';
+
+scene.forEach(entity => 
+    // @ts-ignore
+    entities.push(constructEntity(entity)))
+
+
+// BEGIN
 
 // initialize containers
 var threeScene: THREE.Scene;
@@ -93,12 +106,6 @@ entities.forEach(entity => {
     }
     if(hasOimoBody(entity)) {
         oimoWorld.addRigidBody(entity.oimoBody);
-
-        entity.threeObject.position.set(
-            entity.oimoBody.getPosition().x, 
-            entity.oimoBody.getPosition().y, 
-            entity.oimoBody.getPosition().z
-        )
     }
 })
 

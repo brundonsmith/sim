@@ -1,8 +1,8 @@
 import * as THREE from 'three';
-import * as CANNON from 'cannon';
-import { observable, computed, autorun } from 'mobx';
+//import * as CANNON from 'cannon';
+//import { observable, computed, autorun } from 'mobx';
 import { having } from 'utilities/misc';
-
+/*
 import { Collider } from './utilities';
 
 const EULER_ORDER = 'YZX';
@@ -12,7 +12,7 @@ const EULER_ORDER = 'YZX';
  * so you don't have to try and align them yourself.
  */
 export default class PhysicalObject {
-
+/*
     //public parent: PhysicalObject|null = null;
 
     public get position(): THREE.Vector3 {
@@ -70,7 +70,7 @@ export default class PhysicalObject {
         /*
         this.body.addEventListener('collide', (e) => {
             this.gameObject.components.forEach(component => component.onCollision(e))
-        })*/
+        })
 
 
         // sync
@@ -86,5 +86,5 @@ export default class PhysicalObject {
         renderScene.add(this.model);
         physicsWorld.addBody(this.body);
     }
-
+*/
 }

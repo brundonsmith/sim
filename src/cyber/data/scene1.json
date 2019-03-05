@@ -5,25 +5,104 @@
             "type": "Group",
             "children": [
                 {
-                    "tags": [ "camera" ],
-                    "threeObject": {
-                        "type": "PerspectiveCamera",
-                        "fov": 75,
-                        "aspect": 1.33,
-                        "near": 0.1,
-                        "far": 1000
-                    }
+                    "type": "PerspectiveCamera",
+                    "fov": 75,
+                    "aspect": 1.33,
+                    "near": 0.1,
+                    "far": 1000
                 }
             ]
         },
         "oimoBody": {
             "position": { "x": -5, "y": 5, "z": 20 },
-            "friction": 0,
+            "rotationFactor": { "x": 0, "y": 0, "z": 0 },
             "shapes": [
                 {
-                    "type": "CapsuleGeometry",
-                    "radius": 1,
-                    "halfExtents": 1
+                    "friction": 0,
+                    "geometry": {
+                        "type": "CapsuleGeometry",
+                        "radius": 1,
+                        "halfHeight": 1
+                    }
+                }
+            ]
+        }
+    },
+    {
+        "tags": [ ],
+        "threeObject": {
+            "type": "DirectionalLight",
+            "castShadow": true
+        }
+    },
+    {
+        "tags": [ "box" ],
+        "threeObject": {
+            "type": "Mesh",
+            "castShadow": true,
+            "receiveShadow": true,
+            "material": {
+                "type": "MeshStandardMaterial",
+                "color": {
+                    "r": 0,
+                    "g": 0,
+                    "b": 1
+                }
+            },
+            "geometry": {
+                "type": "BoxGeometry",
+                "width": 1,
+                "height": 1
+            }
+        },
+        "oimoBody": {
+            "bodyType": "DYNAMIC",
+            "position": { "x": 0, "y": 5, "z": 0 },
+            "orientation": { "x": 123, "y": 456, "z": 789 },
+            "mass": 1,
+            "shapes": [
+                {
+                    "geometry": {
+                        "type": "BoxGeometry",
+                        "halfExtents": {
+                            "x": 0.5,
+                            "y": 0.5,
+                            "z": 0.5
+                        }
+                    }
+                }
+            ]
+        }
+    },
+    {
+        "tags": [ "floor" ],
+        "threeObject": {
+            "type": "Mesh",
+            "receiveShadow": true,
+            "material": {
+                "type": "MeshStandardMaterial"
+            },
+            "geometry": {
+                "type": "PlaneGeometry",
+                "width": 100,
+                "height": 100
+            }
+        },
+        "oimoBody": {
+            "bodyType": "STATIC",
+            "orientation": { "x": -1.570796327, "y": 0, "z": 0 },
+            "mass": 0,
+            "shapes": [
+                {
+                    "rotation": { "x": -1.570796327, "y": 0, "z": 0 },
+                    "geometry": {
+                        "type": "BoxGeometry",
+                        "halfExtents": {
+                            "x": 50,
+                            "y": 1,
+                            "z": 50
+                        }
+                    }
                 }
             ]
         }

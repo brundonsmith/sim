@@ -1,7 +1,7 @@
 import * as THREE from 'three';
-import * as CANNON from 'cannon';
+//import * as CANNON from 'cannon';
 import { having } from 'utilities/misc';
-
+/*
 export type Collider = {
     shapes: Array<CANNON.Shape>,
     shapeOffsets: Array<THREE.Vector3>,
@@ -64,3 +64,4 @@ export const wireframeMaterial
     : () => THREE.Material
     = () =>
         new THREE.MeshBasicMaterial({ color: 0x00ff00, wireframe: true })
+*/

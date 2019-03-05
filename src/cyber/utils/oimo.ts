@@ -17,18 +17,6 @@ export const initRigidbody = (options: { config?: OIMO.RigidBodyConfig, massData
     return body;
 }
 
-export const initRigidbodyConfig = (obj: InterfaceOf<OIMO.RigidBodyConfig>) => {
-    let result = new OIMO.RigidBodyConfig();
-    Object.assign(result, obj);
-    return result;
-}
-
-export const initMassData = (obj: InterfaceOf<OIMO.MassData>) => {
-    let result = new OIMO.MassData();
-    Object.assign(result, obj);
-    return result;
-}
-
 export const initShape = (options: { config?: OIMO.ShapeConfig, friction?: number }) => {
     let shape = new OIMO.Shape(options.config || new OIMO.ShapeConfig());
 
@@ -37,12 +25,6 @@ export const initShape = (options: { config?: OIMO.ShapeConfig, friction?: numbe
     }
 
     return shape;
-}
-
-export const initShapeConfig = (obj: InterfaceOf<OIMO.ShapeConfig>) => {
-    let result = new OIMO.ShapeConfig();
-    Object.assign(result, obj);
-    return result;
 }
 
 

@@ -12,6 +12,7 @@
             .replace(': Void', ': void')
             .replace(': Any', ': any')
             .replace(': String', ': string')
+            .replace(/Vector<([a-z0-9]+)>/gi, 'Array<$1>')
             .replace('static', 'static ')
             .replace('read only', 'readonly ')
         )

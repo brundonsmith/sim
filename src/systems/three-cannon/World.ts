@@ -1,10 +1,10 @@
 import * as THREE from 'three';
-import * as CANNON from 'cannon';
+//import * as CANNON from 'cannon';
 import { having } from 'utilities/misc';
 import PhysicalObject from './PhysicalObject';
 
 export default class World {
-
+/*
     public renderer: THREE.WebGLRenderer = new THREE.WebGLRenderer();
     public threeScene: THREE.Scene = new THREE.Scene();
     public cannonWorld: CANNON.World = new CANNON.World();
@@ -74,7 +74,7 @@ export default class World {
     public addObject(obj: PhysicalObject) {
         this.objects.push(obj);
         obj.register(this.threeScene, this.cannonWorld);
-    }
+    }*/
 }
 
 const getObject

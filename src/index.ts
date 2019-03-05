@@ -1,3 +1,4 @@
+/*
 import * as THREE from 'three';
 import World from 'systems/three-cannon/World';
 import PhysicalObject from 'systems/three-cannon/PhysicalObject';

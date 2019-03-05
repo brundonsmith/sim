@@ -1,26 +1,9 @@
 import * as THREE from 'three';
 import * as OIMO from 'oimo';
 import { Entity, WithThreeCamera, WithThreeLight, WithScoutProperties, WithOimoBody, WithFollow } from './types';
-import { initRigidbody, initMassData, initShape, initShapeConfig, initRigidbodyConfig } from './utils/oimo';
+import { initRigidbody, initShape } from './utils/oimo';
 import { fallback } from './utils/misc';
-import { ZERO } from './constants';
-
-type BasicProps = {
-    position?: OIMO.Vec3,
-    orientation?: OIMO.Quat,
-}
-
-type BasicPhysicsProps = {
-    bodyType?: number,
-    mass?: number,
-    friction?: number,
-    shape?: OIMO.Geometry,
-}
-
-type BasicRenderingProps = {
-    castShadow?: boolean,
-    receiveShadow?: boolean,
-}
+/*
 
 type EntityJSON = {
     tags: Array<string>,
@@ -51,7 +34,7 @@ export const createCamera
         tags: [ 'camera' ],
         threeObject: new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000)
     })
-
+/*
 export const createBuilding
     : (props: { x: number, z: number, width: number, depth: number, height: number }) => Entity & WithOimoBody
     = ({ x, z, width, depth, height }) => {
@@ -86,7 +69,7 @@ export const createBuilding
         };
     }
 
-
+/*
 export const createBox
     : (props: BasicProps & BasicPhysicsProps & BasicRenderingProps & { width: number, height: number, depth: number }) => Entity & WithOimoBody
     = ({ bodyType, mass, friction, position, orientation, castShadow, receiveShadow, width, height, depth }) => ({
@@ -121,7 +104,7 @@ export const createFloor
 
         return entity;
     }
-
+*/
 export const createAmbientLight
     : (color: number, intensity: number) => Entity & WithThreeLight
     = (color, intensity) => ({
@@ -160,6 +143,7 @@ export const createDirectionalLight
         };
     }
 
+    /*
 export const createPlayer
     : (props: BasicProps) => Entity & WithOimoBody
     = ({ position, orientation }) => {
@@ -201,18 +185,19 @@ export const createScout
             speed: 1
         }
     })
-
+*/
 type ThreeObjectInit = { 
     type: string, 
     position?: VectorInit,
     rotation?: VectorInit,
+    geometry?: ThreeGeometryInit,
     children?: Array<ThreeObjectInit>,
     [prop: string]: any
 }
 
 const createThreeObject
     : (init: ThreeObjectInit) => THREE.Object3D
-    = ({ type, position, rotation, children, ...rawProps }) => {
+    = ({ type, position, rotation, geometry, children, ...rawProps }) => {
         // @ts-ignore
         let constructor = THREE[props.type];
         let obj: THREE.Object3D = new constructor();
@@ -227,10 +212,34 @@ const createThreeObject
             children.forEach(child => 
                 obj.add(createThreeObject(child)))
         }
+        if(geometry && obj instanceof THREE.Mesh) {
+            obj.geometry = createThreeGeometry(geometry);
+        }
 
         Object.assign(obj, rawProps);
 
         return obj;
+    }
+
+type ThreeGeometryInit = {
+    type: 'PlaneGeometry'|'BoxGeometry',
+    width?: number,
+    height?: number,
+    depth?: number,
+    widthSegments?: number,
+    heightSegments?: number,
+    depthSegments?: number
+}
+
+const createThreeGeometry
+    : (init: ThreeGeometryInit) => THREE.Geometry
+    = ({ type, width, height, depth, widthSegments, heightSegments, depthSegments }) => {
+        switch(type) {
+            case 'PlaneGeometry':
+                return new THREE.PlaneGeometry(width, height, widthSegments, heightSegments)
+            case 'BoxGeometry':
+                return new THREE.BoxGeometry(width, height, depth, widthSegments, heightSegments, depthSegments)
+        }
     }
 
 
@@ -239,29 +248,24 @@ type OimoBodyInit = {
     //orientation?: OIMO.Quat,
     bodyType?: 'DYNAMIC'|'KINEMATIC'|'STATIC',
     mass?: number,
-    friction?: number,
     shape?: OimoShapeInit,
 }
-
+/*
 const createOimoBody
     : (init: OimoBodyInit) => OIMO.RigidBody
-    = ({ bodyType, mass, friction, shape, position }) => {
+    = ({ bodyType, mass, shape, position }) => {
         let body = initRigidbody({
             config: initRigidbodyConfig({
                 type: OIMO.RigidBodyType[bodyType || 'DYNAMIC']
             }),
-            shapes: [
-                initShape({
-                    config: initShapeConfig({
-                        friction: fallback(friction, 1),
-                        geometry: shape
-                    })
-                })
-            ],
             massData: initMassData({
                 mass: fallback(mass, 1)
             })
         })
+
+        if(shape) {
+            body.addShape(createOimoShape(shape))
+        }
 
         if(position) {
             body.setPosition(createOimoVector(position));
@@ -269,12 +273,12 @@ const createOimoBody
         /*
         if(orientation) {
             body.setOrientation(orientation);
-        }*/
+        }
 
         return body;
     }
 
-
+*/
 type OimoShapeInit = {
     geometry: OimoGeometryInit,
     collisionGroup?: number,
