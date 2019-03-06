@@ -83,18 +83,18 @@
                 "type": "MeshStandardMaterial"
             },
             "geometry": {
-                "type": "PlaneGeometry",
+                "type": "BoxGeometry",
                 "width": 100,
-                "height": 100
+                "height": 2,
+                "depth": 100
             }
         },
         "oimoBody": {
             "bodyType": "STATIC",
-            "orientation": { "x": -1.570796327, "y": 0, "z": 0 },
+            "position": { "x": 0, "y": -1, "z": 0 },
             "mass": 0,
             "shapes": [
                 {
-                    "rotation": { "x": -1.570796327, "y": 0, "z": 0 },
                     "geometry": {
                         "type": "BoxGeometry",
                         "halfExtents": {

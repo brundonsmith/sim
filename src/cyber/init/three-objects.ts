@@ -17,14 +17,12 @@ export const createThreeObject
     : (init: ThreeObjectInit) => THREE.Object3D
     = ({ type, position, rotation, material, geometry, children, ...rawProps }) => {
         // @ts-ignore
-        let constructor = THREE[type];
-        let obj: THREE.Object3D = new constructor();
+        let obj: THREE.Object3D = new THREE[type]();
 
         if(position != null) {
             obj.position.set(position.x, position.y, position.z);
         }
         if(rotation != null) {
-            debugger;
             obj.rotation.set(rotation.x, rotation.y, rotation.z);
         }
         if(children != null) {

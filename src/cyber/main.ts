@@ -125,6 +125,26 @@ const updateAspect = () => {
 
 updateAspect();
 
+// HACK
+let sun = findInChildren(threeScene, obj => obj instanceof THREE.DirectionalLight) as THREE.DirectionalLight|void;
+if(sun) {
+    sun.add(sun.target);
+    sun.target.position.set(1, -1, 1);
+
+    sun.shadow.mapSize.width = 2048;
+    sun.shadow.mapSize.height = 2048;
+    sun.shadow.camera.near = 0.5;
+    sun.shadow.camera.far = 10000;
+    
+    sun.shadow.camera.left = -50;
+    sun.shadow.camera.right = 50;
+    sun.shadow.camera.top = 50;
+    sun.shadow.camera.bottom = -50;
+}
+
+let player = entities.find(e => e.tags.includes('player'));
+
+
 // begin and loop
 var previousTick: number|null = null;
 var exit = false;
@@ -147,6 +167,11 @@ const tick = () => {
         renderer.render(threeScene, mainCam);
     } else {
         console.error(`No camera found in scene`);
+    }
+
+    // HACK
+    if(sun && player) {
+        sun.position.set(player.threeObject.position.x - 1000, player.threeObject.position.y + 1000, player.threeObject.position.z - 1000);
     }
 
     if(!exit) {
