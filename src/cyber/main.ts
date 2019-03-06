@@ -91,11 +91,13 @@ var renderer: THREE.WebGLRenderer;
     oimoWorld = new OIMO.World(OIMO.BroadPhaseType.BVH, new OIMO.Vec3(0, GRAVITY, 0));
 
     renderer = new THREE.WebGLRenderer();
-    renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.shadowMap.enabled = true;
     document.body.appendChild(renderer.domElement);
 
-    console.log({ entities, threeScene, oimoWorld })
+    // @ts-ignore
+    window.game = { entities, threeScene, oimoWorld };
+    // @ts-ignore
+    console.log(window.game);
 }
 
 
@@ -110,8 +112,18 @@ entities.forEach(entity => {
 })
 
 
-let mainCam = findInChildren(threeScene, obj => obj instanceof THREE.Camera) as THREE.Camera|void;
+let mainCam = findInChildren(threeScene, obj => obj instanceof THREE.PerspectiveCamera) as THREE.PerspectiveCamera|void;
 
+const updateAspect = () => {
+    console.log('updateAspect()')
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    if(mainCam) {
+        mainCam.aspect = window.innerWidth/window.innerHeight;
+        mainCam.updateProjectionMatrix();
+    }
+}
+
+updateAspect();
 
 // begin and loop
 var previousTick: number|null = null;
@@ -141,10 +153,12 @@ const tick = () => {
         setTimeout(() => requestAnimationFrame(tick), FRAME_LENGTH - delta);
     }
 }
+
 renderer.domElement.addEventListener('click', e => 
     //@ts-ignore
     (<HTMLElement>e.target).requestPointerLock()
 )
+window.addEventListener('resize', updateAspect)
 window.addEventListener('keydown', e => {
     if(e.code === 'KeyQ') {
         exit = true;
