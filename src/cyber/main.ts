@@ -1,5 +1,10 @@
 import * as THREE from 'three';
+import Sky from '../../lib/three-plugins/Sky';
 import OIMO from 'oimo';
+
+console.log('HELLO')
+// @ts-ignore
+console.log(Sky)
 
 import Input from './Input';
 import { Entity } from './types';
@@ -71,10 +76,97 @@ for(let x = -500; x < 500; x += 50)
 
 import scene from './data/scene1.json';
 import { constructEntity } from './init/general';
+import { scale } from 'systems/geometry/Vector';
+import { Face3 } from 'three';
+import { createOimoBody, createOimoShape } from './init/oimo-objects';
 
+// JSON
 scene.forEach(entity => 
     // @ts-ignore
     entities.push(constructEntity(entity)))
+
+
+
+
+const createHeightmapGeometry
+    : (heightmap: Array<Array<number>>, scale?: number, height?: number) => THREE.Geometry
+    = (heightmap, scale = 1, height = 100) => {
+        let geometry = new THREE.Geometry();
+
+        // vertices
+        geometry.vertices = 
+            heightmap.map((row, rowIndex) => 
+                row.map((pixel, pixelIndex) => 
+                    new THREE.Vector3(rowIndex * scale, pixel * height, pixelIndex * scale))
+            ).flat()
+
+        // faces
+        for(let r = 0; r < heightmap.length - 1; r++) {
+            let row = heightmap[r];
+            let currentRowOffset = row.length * r;
+            let nextRowOffset = row.length * (r + 1);
+            for(let p = 0; p < row.length - 1; p++) {
+                geometry.faces.push(new THREE.Face3(
+                    currentRowOffset + p, 
+                    currentRowOffset + p + 1, 
+                    nextRowOffset + p
+                ));
+                geometry.faces.push(new THREE.Face3(
+                    currentRowOffset + p + 1, 
+                    nextRowOffset + p + 1, 
+                    nextRowOffset + p
+                ));
+            }
+        }
+        
+        geometry.verticesNeedUpdate = true;
+        geometry.computeBoundingBox();
+        geometry.computeBoundingSphere();
+        geometry.computeVertexNormals();
+        geometry.computeFaceNormals();
+        return geometry;
+    }
+
+const createMeshGeometry
+    : (geometry: THREE.Geometry) => Array<OIMO.ConvexHullGeometry>
+    = (geometry) => 
+        geometry.faces.map(face => new OIMO.ConvexHullGeometry([
+            createOimoVecFromThree(geometry.vertices[face.a]),
+            createOimoVecFromThree(geometry.vertices[face.b]),
+            createOimoVecFromThree(geometry.vertices[face.c])
+        ]))
+    
+const createOimoVecFromThree
+    : (vec: THREE.Vector3) => OIMO.Vec3
+    = (vec) =>
+        new OIMO.Vec3(vec.x, vec.y, vec.z)
+
+let heightmap: Array<Array<number>> = [];
+for(let r = 0; r < 10; r++) {
+    heightmap.push([]);
+    let row = heightmap[r];
+    for(let p = 0; p < 10; p++) {
+        row.push((r + p) / 20);
+    }
+}
+let geom = createHeightmapGeometry(heightmap, 1, 5);
+
+let terrain = {
+    tags: [ 'terrain' ],
+    threeObject: new THREE.Mesh(geom, new THREE.MeshStandardMaterial()),
+    oimoBody: createOimoBody({
+        bodyType: 'STATIC',
+        mass: 0
+    })
+}
+
+createMeshGeometry(geom).forEach(hull => 
+    terrain.oimoBody.addShape(new OIMO.Shape(Object.assign(new OIMO.ShapeConfig(), { geometry: hull }))))
+
+entities.push(terrain)
+
+
+
 
 
 // BEGIN
@@ -101,6 +193,43 @@ var renderer: THREE.WebGLRenderer;
 }
 
 
+{
+    // Add Sky
+    // @ts-ignore
+    let sky = new Sky();
+    sky.scale.setScalar( 450000 );
+    threeScene.add( sky );
+    // Add Sun Helper
+    let sunSphere = new THREE.Mesh(
+        new THREE.SphereBufferGeometry( 20000, 16, 8 ),
+        new THREE.MeshBasicMaterial( { color: 0xffffff } )
+    );
+    sunSphere.position.y = - 700000;
+    sunSphere.visible = false;
+    threeScene.add( sunSphere );
+
+    const distance = 400000;
+
+    sky.material.uniforms.turbidity.value = 10; // 1.0 - 20.0
+    sky.material.uniforms.rayleigh.value = 2; // 0.0 - 4.0
+    sky.material.uniforms.mieCoefficient.value = 0.005; // 0.0 - 0.1
+    sky.material.uniforms.mieDirectionalG.value = 0.8; // 0.0 - 1.0
+    sky.material.uniforms.luminance.value = 1; // 0.0 - 2.0
+
+    const inclination = 0.49; // 0 - 1
+    const azimuth = 0.25; // 0 - 1
+    const theta = Math.PI * ( inclination - 0.5 );
+    const phi = 2 * Math.PI * ( azimuth - 0.5 );
+    sunSphere.position.x = distance * Math.cos( phi );
+    sunSphere.position.y = distance * Math.sin( phi ) * Math.sin( theta );
+    sunSphere.position.z = distance * Math.sin( phi ) * Math.cos( theta );
+    sunSphere.visible = true;
+    sky.material.uniforms.sunPosition.value.copy( sunSphere.position );
+}
+
+
+
+
 // register entities
 entities.forEach(entity => {
     if(entity.threeObject && !alreadyAdded(threeScene, entity.threeObject)) {
@@ -115,7 +244,6 @@ entities.forEach(entity => {
 let mainCam = findInChildren(threeScene, obj => obj instanceof THREE.PerspectiveCamera) as THREE.PerspectiveCamera|void;
 
 const updateAspect = () => {
-    console.log('updateAspect()')
     renderer.setSize(window.innerWidth, window.innerHeight);
     if(mainCam) {
         mainCam.aspect = window.innerWidth/window.innerHeight;

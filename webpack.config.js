@@ -14,13 +14,20 @@ module.exports = {
         extensions: [ ".ts", ".js", ".json" ],
 
         alias: {
+            '^lib': path.resolve(__dirname, 'lib'),
             'oimo$': path.resolve(__dirname, 'lib/OimoPhysics.min.js')
         }
     },
     module: {
         rules: [
           // all files with a `.ts` or `.tsx` extension will be handled by `ts-loader`
-          { test: /\.ts/, loader: "ts-loader" }
+          { 
+              test: /\.ts/, 
+              loader: "ts-loader", 
+              options: {
+                  configFile: path.resolve(__dirname, 'tsconfig.json')
+              }
+          }
         ]
     }
 }

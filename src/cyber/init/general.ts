@@ -3,7 +3,7 @@ import { ThreeObjectInit, createThreeObject } from "./three-objects";
 import { Entity } from "../types";
 
 
-type EntityJSON = {
+type EntityInit = {
     tags: Array<string>,
     threeObject: ThreeObjectInit,
     oimoBody?: OimoBodyInit,
@@ -11,7 +11,7 @@ type EntityJSON = {
 }
 
 export const constructEntity
-    : (json: EntityJSON) => Entity
+    : (json: EntityInit) => Entity
     = (json) => {
         let entity: Entity & { [key: string]: any  } = {
             tags: json.tags,

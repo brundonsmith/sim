@@ -20,7 +20,7 @@ export const trace
 export const capture
     : (str: string, exp: RegExp) => Array<string>
     = (str, exp) => {
-        let res = [];
+        let res: Array<string> = [];
 
         let expClone = new RegExp(exp.source,`
             ${exp.global ? 'g' : ''}

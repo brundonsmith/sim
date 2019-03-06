@@ -56,7 +56,7 @@ type OimoShapeInit = {
     restitution?: number,
 }
 
-const createOimoShape
+export const createOimoShape
     : (init: OimoShapeInit) => OIMO.Shape
     = ({ geometry, position, rotation, ...rawProps }) => 
         new OIMO.Shape(Object.assign(new OIMO.ShapeConfig(), {
