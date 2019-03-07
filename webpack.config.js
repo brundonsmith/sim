@@ -2,7 +2,7 @@ const path = require('path');
 
 module.exports = {
     mode: 'development',
-    entry: "./src/cyber/main.ts",
+    entry: "./src/projects/cyber/main.ts",
     output: {
         filename: "bundle.js"
     },
@@ -14,8 +14,7 @@ module.exports = {
         extensions: [ ".ts", ".js", ".json" ],
 
         alias: {
-            '^lib': path.resolve(__dirname, 'lib'),
-            'oimo$': path.resolve(__dirname, 'lib/OimoPhysics.min.js')
+            'oimo$': path.resolve(__dirname, 'src/lib/OimoPhysics.min.js')
         }
     },
     module: {

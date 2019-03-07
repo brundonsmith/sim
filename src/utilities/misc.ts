@@ -48,11 +48,6 @@ export const pipe
         return current;
     }
 
-
-export const clamp
-    : <T>(x: T, min: T, max: T) => T
-    = (x, min, max) => x > max ? max : (x < min ? min : x)
-
 export const merge
     : <T,U,R>(func: (el1: T, el2: U) => R) => (arr1: Readonly<Array<T>>, arr2: Readonly<Array<U>>) => Array<R>
     = (func) => (arr1, arr2) => {
@@ -64,3 +59,11 @@ export const merge
 
         return newArr;
     }
+
+export const fallback = <T>(val: T, def: NonNullable<T>): NonNullable<T> =>
+    val == null ? def : (val as NonNullable<T>)
+
+export const combinations
+    : <T>(a: Array<T>, b: Array<T>) => Array<[T, T]>
+    = <T>(a, b) =>
+        a.map(aVal => b.map(bVal => [ aVal, bVal ] as [ T, T ])).flat()
