@@ -2,19 +2,19 @@ import * as THREE from 'three';
 import Sky from '../../lib/three-plugins/Sky';
 import OIMO from 'oimo';
 
-console.log('HELLO')
-// @ts-ignore
-console.log(Sky)
-
 import Input from './Input';
 import { Entity } from './types';
-
-// ECS
-var entities: Array<Entity> = [];
 import systems from './systems';
 import { FRAME_LENGTH, GRAVITY } from './constants';
 import { findInChildren, alreadyAdded } from './utils/three';
 import { hasOimoBody } from './utils/entity';
+import { constructEntity } from './init/general';
+import { createOimoBody } from './init/oimo-objects';
+import { createHeightmapGeometry, createOimoGeometry } from './terrain/utils';
+import { generateTerrain } from './terrain/diamond-square';
+
+// ECS
+var entities: Array<Entity> = [];
 
 // populate scene
 
@@ -75,10 +75,6 @@ for(let x = -500; x < 500; x += 50)
 */
 
 import scene from './data/scene1.json';
-import { constructEntity } from './init/general';
-import { scale } from 'systems/geometry/Vector';
-import { Face3 } from 'three';
-import { createOimoBody, createOimoShape } from './init/oimo-objects';
 
 // JSON
 scene.forEach(entity => 
@@ -88,79 +84,31 @@ scene.forEach(entity =>
 
 
 
-const createHeightmapGeometry
-    : (heightmap: Array<Array<number>>, scale?: number, height?: number) => THREE.Geometry
-    = (heightmap, scale = 1, height = 100) => {
-        let geometry = new THREE.Geometry();
-
-        // vertices
-        geometry.vertices = 
-            heightmap.map((row, rowIndex) => 
-                row.map((pixel, pixelIndex) => 
-                    new THREE.Vector3(rowIndex * scale, pixel * height, pixelIndex * scale))
-            ).flat()
-
-        // faces
-        for(let r = 0; r < heightmap.length - 1; r++) {
-            let row = heightmap[r];
-            let currentRowOffset = row.length * r;
-            let nextRowOffset = row.length * (r + 1);
-            for(let p = 0; p < row.length - 1; p++) {
-                geometry.faces.push(new THREE.Face3(
-                    currentRowOffset + p, 
-                    currentRowOffset + p + 1, 
-                    nextRowOffset + p
-                ));
-                geometry.faces.push(new THREE.Face3(
-                    currentRowOffset + p + 1, 
-                    nextRowOffset + p + 1, 
-                    nextRowOffset + p
-                ));
-            }
-        }
-        
-        geometry.verticesNeedUpdate = true;
-        geometry.computeBoundingBox();
-        geometry.computeBoundingSphere();
-        geometry.computeVertexNormals();
-        geometry.computeFaceNormals();
-        return geometry;
-    }
-
-const createMeshGeometry
-    : (geometry: THREE.Geometry) => Array<OIMO.ConvexHullGeometry>
-    = (geometry) => 
-        geometry.faces.map(face => new OIMO.ConvexHullGeometry([
-            createOimoVecFromThree(geometry.vertices[face.a]),
-            createOimoVecFromThree(geometry.vertices[face.b]),
-            createOimoVecFromThree(geometry.vertices[face.c])
-        ]))
-    
-const createOimoVecFromThree
-    : (vec: THREE.Vector3) => OIMO.Vec3
-    = (vec) =>
-        new OIMO.Vec3(vec.x, vec.y, vec.z)
-
-let heightmap: Array<Array<number>> = [];
+let heightmap: Array<Array<number>> = generateTerrain(129, 129);
+/*
 for(let r = 0; r < 10; r++) {
     heightmap.push([]);
     let row = heightmap[r];
     for(let p = 0; p < 10; p++) {
         row.push((r + p) / 20);
     }
-}
+}*/
 let geom = createHeightmapGeometry(heightmap, 1, 5);
 
 let terrain = {
     tags: [ 'terrain' ],
-    threeObject: new THREE.Mesh(geom, new THREE.MeshStandardMaterial()),
+    threeObject: new THREE.Mesh(geom, new THREE.MeshStandardMaterial({
+        color: 0x3f704d,
+        roughness: 1,
+        metalness: 0.75
+    })),
     oimoBody: createOimoBody({
         bodyType: 'STATIC',
         mass: 0
     })
 }
 
-createMeshGeometry(geom).forEach(hull => 
+createOimoGeometry(geom, 10, 1, 10).forEach(hull => 
     terrain.oimoBody.addShape(new OIMO.Shape(Object.assign(new OIMO.ShapeConfig(), { geometry: hull }))))
 
 entities.push(terrain)
